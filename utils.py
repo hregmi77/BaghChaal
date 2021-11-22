@@ -1,6 +1,6 @@
 import numpy as np
 import pickle
-
+from baghchal.lookup_table import action_space, reversed_action_space
 
 def softmax(x):
     arr=np.exp(x)
@@ -24,7 +24,6 @@ def symmetry_board_moves(inputs):
     Each input has 8 symmetries including the given input i.e. rotation(0,90,180,270)+flip_horizontal(rotation(0,90,180,270))
     These 8 output for single input encapsulates all rotation and flip horizontally or vertically.
     '''
-    from lookup_table import action_space,reversed_action_space
     a = np.empty((5, 5), dtype="<U2")
     for x in range(1, 6):
         for y in range(1, 6):

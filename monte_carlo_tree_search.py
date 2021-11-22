@@ -13,7 +13,8 @@ class Node:
     @property
     def Q(self):
         return self.W / self.n_visits if self.n_visits != 0 else 0
-
+    def expanded(self):
+        return len(self.children) > 0
     def get_value(self, cpuct):
         self.U = cpuct * self.prior_prob * \
                  (self.n_visits ** 0.5 / (1 + self.parent.n_visits))
@@ -22,7 +23,7 @@ class Node:
     def expand(self, action_prob):
         for action, prob in action_prob:
             if action not in self.children:
-                self.children[action] = prob
+                self.children[action] = Node(self, prob)
 
     def update(self, value):
         self.n_visits += 1
@@ -33,7 +34,13 @@ class Node:
             self.parent.update(-value)
         self.update(value)
 
+    def maximum_keys(dic):
+        maximum = max(dic.values())
+        keys = filter(lambda x: dic[x] == maximum, dic.keys())
+        return keys, maximum
+
     def select(self, cpuct):
+
         return max(self.children.items(),
                    key=lambda act_node: act_node[1].get_value(cpuct))
 
@@ -56,6 +63,9 @@ class MCTS:
         while True:
             if node.is_leaf():
                 break
+            # for action, childnode in node.children.items():
+            #     print(action, childnode)
+            # exit(0)
             action, node = node.select(self.cpuct)
             board.pure_move(action)
         end = board.is_game_over()
@@ -73,27 +83,28 @@ class MCTS:
 
         '''-ve because from the parent node's perspective the ,
      leaf node is -leaf_value as we use max while selecting the node.'''
-        node.update_recursive(-leaf_value)
+        node.update(-leaf_value)
 
-        def get_move_probs(self, board, temp=1e-3):
+    def get_move_probs(self, board, temp=1e1):
 
-            for _ in range(self.n_playout):
-                board_copy = copy.deepcopy(board)
-                self.playout(board_copy)
-
+        for _ in range(self.n_playout):
+            board_copy = copy.deepcopy(board)
+            self.playout(board_copy)
         act_visits = [(act, node.n_visits)
                       for act, node in self.root.children.items()]
         acts, visits = zip(*act_visits)
-        act_probs = np.array(visits) ** (1 / temp)
+        # act_probs = np.array(visits) ** (1 / temp)
+        act_probs = np.array(visits)
         act_probs = act_probs / sum(act_probs)
 
-        [print(act, f"{node.Q:.3f} {node.n_visits}") for act, node in self.root.children.items()]
+        # [print(act, f"{node.Q:.3f} {node.n_visits}") for act, node in self.root.children.items()]
+        [print(f'act: {act}, Qvalue: {node.Q}, Visits: {node.n_visits}') for act, node in self.root.children.items()]
         return acts, act_probs
 
-        def update_with_move(self, move):
+    def update_with_move(self, move):
 
-            if move in self.root.children:
-                self.root = self.root.children[move]
-                self.root.parent = None
-            else:
-                self.root = Node(None, 1)
+        if move in self.root.children:
+            self.root = self.root.children[move]
+            self.root.parent = None
+        else:
+            self.root = Node(None, 1)

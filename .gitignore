@@ -3,3 +3,6 @@ venv/
 .idea/
 models/
 test/
+humanplayerdata/Game_1.mat
+humanplayerdata/Game_2.mat
+humanplayerdata/Game_3.mat

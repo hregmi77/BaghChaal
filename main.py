@@ -1,13 +1,18 @@
-from Game import Game
-from Player import MCTSPlayer,HumanPlayer
+from game import Game
+from player import MCTSPlayer,HumanPlayer
 from policy_value_net import PolicyValueNet
 from utils import symmetry_board_moves
 game=Game()
 goat=HumanPlayer()
-pvnet=PolicyValueNet("models/model.h5")
+bagh = HumanPlayer()
+pvnet=PolicyValueNet()
 pvnet_fn=pvnet.policy_value_fn
 bagh=MCTSPlayer(pvnet_fn,n_playout=500)
-data=game.start_play(bagh,goat)
+
+# print(bagh.mcts.policy)
+# exit(0)
+# data=game.start_play(bagh,goat)
+[w, data] = game.start_self_play(bagh)
 data=[x for x in data]
 data=symmetry_board_moves(data)
 state_batch = [x[0] for x in data]

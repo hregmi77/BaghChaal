@@ -1,7 +1,7 @@
 from baghchal.env import Board
 import numpy as np
 from player import HumanPlayer,MCTSPlayer
-from lookup_table import action_space
+from baghchal.lookup_table import action_space
 class Game:
     def __init__(self, board=Board()):
         self.board = board

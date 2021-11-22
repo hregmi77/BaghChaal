@@ -1,12 +1,12 @@
-from keras import Input, Model
-from keras.layers import Dense, Flatten, Conv2D, BatchNormalization, Add, Activation
-from keras.regularizers import l2
-from keras.optimizers import Adam
-from keras.models import load_model
+from tensorflow.keras import Input, Model
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, BatchNormalization, Add, Activation
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.models import load_model
 from config import ModelConfig
 from utils import mask_illegal
 import numpy as np
-from lookup_table import action_list
+from baghchal.lookup_table import action_list
 action_list=np.array(action_list)
 
 class PolicyValueNet:
@@ -114,7 +114,6 @@ class PolicyValueNet:
     def save_model(self, model_filename):
         """ save model to file """
         self.model.save(f"models/{model_filename}")
-
     def train(self,board_repr,mtcs_prob,winner,epochs):
         board_repr = np.array(board_repr)
         mtcs_prob = np.array(mtcs_prob)

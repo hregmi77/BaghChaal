@@ -29,6 +29,8 @@ class MCTSPlayer:
         sensible_moves = board.possible_moves()
         # the pi vector returned by MCTS as in the alphaGo Zero paper
         move_probs = np.zeros(217)
+        # print('possible moves detected')
+        # exit(0)
         if sensible_moves:
             acts, probs = self.mcts.get_move_probs(board, temp)
             counter=0
@@ -48,6 +50,7 @@ class MCTSPlayer:
             else:
                 # with the default temp=1e-3, it is almost equivalent
                 # to choosing the move with the highest prob
+                print(probs)
                 move = np.random.choice(acts, p=probs)
                 # reset the root node
                 self.mcts.update_with_move(-1)
