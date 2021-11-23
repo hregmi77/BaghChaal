@@ -2,9 +2,11 @@ from baghchal.env import Board
 import numpy as np
 from player import HumanPlayer,MCTSPlayer
 from baghchal.lookup_table import action_space
+from baghchal.engine import Engine
 class Game:
     def __init__(self, board=Board()):
         self.board = board
+        self.engine = Engine()
 
     def start_play(self, GoatPlayer, BaghPlayer, show=True):
         states=[]
@@ -13,6 +15,7 @@ class Game:
         """start a game between two players"""
         if show:
             self.board.lightweight_show_board()
+            # self.board.render()
         while True:
             player_to_move = GoatPlayer if self.board.next_turn == "G" else BaghPlayer
             states.append(self.board.board_repr())
@@ -33,6 +36,49 @@ class Game:
                 mcts_probs.append(a)
             if show:
                 self.board.lightweight_show_board()
+                self.board.render()
+            end = self.board.is_game_over()
+            if end:
+                value=np.array(value)
+                if self.board.winner() == "B":
+                    value *= -1
+                elif self.board.winner() == 0:
+                    value *= 0
+                return zip(states, mcts_probs, value)
+    def start_play_minmax(self, GoatPlayer, BaghPlayer, show=True):
+        states=[]
+        mcts_probs=[]
+        value=[]
+        """start a game between two players"""
+        if show:
+            self.board.lightweight_show_board()
+            # self.board.render()
+        while True:
+            player_to_move = GoatPlayer if self.board.next_turn == "G" else BaghPlayer
+            states.append(self.board.board_repr())
+            player_index = 1 if self.board.next_turn == "G" else -1
+            value.append(player_index)
+            if player_to_move.__class__==HumanPlayer:
+                move = player_to_move.get_action(self.board)
+                a=np.zeros(217)
+                if len(move)==3:
+                    a[action_space[move[1:]]]=1
+                else:
+                    a[action_space[move[-4:]]]=1
+                mcts_probs.append(a)
+                self.board.safe_move(move)
+            else:
+                move, a = self.engine.get_best_move(self.board)
+                a = np.zeros(217)
+                if len(move) == 3:
+                    a[action_space[move[1:]]] = 1
+                else:
+                    a[action_space[move[-4:]]] = 1
+                mcts_probs.append(a)
+                self.board.safe_move(move)
+            if show:
+                self.board.lightweight_show_board()
+                # self.board.render()
             end = self.board.is_game_over()
             if end:
                 value=np.array(value)
@@ -75,6 +121,7 @@ class Game:
             self.board.pure_move(move)
             if show:
                 self.board.lightweight_show_board()
+                self.board.render()
             end = self.board.is_game_over()
             if end:
                 value=np.array(value)

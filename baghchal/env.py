@@ -19,6 +19,7 @@ from baghchal.lookup_table import bagh_moves_dict, connected_points_dict, action
 from PIL import Image
 
 
+
 def render_points(p): return (103*(p[1]-1), 103*(p[0]-1))  # for pillow image
 
 
@@ -307,6 +308,7 @@ class Board:
             self.safe_move(move)
 
     def pure_move(self, move):
+        print(len(move))
         if len(move) == 2:
             self.move(f"G{move}")
         else:
@@ -322,7 +324,7 @@ class Board:
         return False
 
     def check_draw(self):
-        if max(self.fen_count.values()) >= 3:
+        if max(self.fen_count.values()) >= 20:
             return 1
         return 0
 

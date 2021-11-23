@@ -1,11 +1,12 @@
 from copy import deepcopy
 INF = 1e6
-
+from baghchal.env import Board
 
 class Engine:
 
     def __init__(self, depth=5):
         self.depth = depth
+        self.board = Board
 
     def static_evaluation(self, board):
         end = board.is_game_over()

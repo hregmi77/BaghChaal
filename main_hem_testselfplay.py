@@ -8,8 +8,8 @@ game=Game()
 goat=HumanPlayer()
 pvnet=PolicyValueNet()
 pvnet_fn=pvnet.policy_value_fn
-bagh=MCTSPlayer(pvnet_fn,n_playout=100, is_selfplay=0)
-goat = MCTSPlayer(pvnet_fn, n_playout=100, is_selfplay=0)
+bagh=MCTSPlayer(pvnet_fn,n_playout=10, is_selfplay=0)
+goat = MCTSPlayer(pvnet_fn, n_playout=10, is_selfplay=0)
 # [w, data] = game.start_self_play(bagh)
 [w, data] = game.start_self_play(goat)
 
