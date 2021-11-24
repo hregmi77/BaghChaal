@@ -12,13 +12,17 @@ pvnet=PolicyValueNet()
 pvnet_fn=pvnet.policy_value_fn
 bagh=MCTSPlayer(pvnet_fn,n_playout=10, is_selfplay=0)
 
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath('__filename__')))
+
 # Start Data Collection and Network training Process
 continue_game = 'yes'
-datadir = 'C:/Users/hregmi/PycharmProjects/BaghChaalProject/humanplayerdata_minmax/'
 
-if not os.path.exists(datadir):
-    os.makedirs(datadir)
-game_counter = len(os.listdir(datadir)) + 1
+data_dir = os.path.join(root_dir, 'humanplayer_data_minmax')
+
+if not os.path.exists(data_dir):
+    os.makedirs(data_dir)
+
+game_counter = len(os.listdir(data_dir)) + 1
 while continue_game == 'yes':
     game.board.reset()
     data = game.start_play_minmax(goat, bagh)
@@ -28,10 +32,10 @@ while continue_game == 'yes':
     mcts_probs_batch = [x[1] for x in data]
     winner_batch = [x[2] for x in data]
     # Save data for training
-    savedict = {'Game Numer': game_counter, 'state_batch': state_batch, 'mcts_probs_batch': mcts_probs_batch,
+    savedict = {'Game Number': game_counter, 'state_batch': state_batch, 'mcts_probs_batch': mcts_probs_batch,
                 'winner_batch': winner_batch}
     time_string = str(int(datetime.now().timestamp()))
-    filename = datadir + 'Game_' + str(game_counter) + '_' +  time_string + '.mat'
+    filename = data_dir + 'Game_' + str(game_counter) + '_' +  time_string + '.mat'
     savemat(filename, savedict)
     continue_game = input('contine game (yes/no):')
     game_counter += 1
