@@ -308,7 +308,7 @@ class Board:
             self.safe_move(move)
 
     def pure_move(self, move):
-        print(len(move))
+        # print(len(move))
         if len(move) == 2:
             self.move(f"G{move}")
         else:

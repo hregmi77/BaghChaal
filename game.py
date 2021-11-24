@@ -36,7 +36,7 @@ class Game:
                 mcts_probs.append(a)
             if show:
                 self.board.lightweight_show_board()
-                self.board.render()
+                # self.board.render()
             end = self.board.is_game_over()
             if end:
                 value=np.array(value)
@@ -121,7 +121,7 @@ class Game:
             self.board.pure_move(move)
             if show:
                 self.board.lightweight_show_board()
-                self.board.render()
+                # self.board.render()
             end = self.board.is_game_over()
             if end:
                 value=np.array(value)

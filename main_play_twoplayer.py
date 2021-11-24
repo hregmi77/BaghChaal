@@ -7,19 +7,16 @@ import numpy as np
 import os
 game = Game()
 goat = HumanPlayer()
-pvnet=PolicyValueNet()
-pvnet_fn=pvnet.policy_value_fn
-bagh=MCTSPlayer(pvnet_fn,n_playout=10, is_selfplay=0)
-
+bagh=HumanPlayer()
 # Start Data Collection and Network training Process
 continue_game = 'yes'
-datadir = 'C:/Users/hregmi/PycharmProjects/BaghChaalProject/humanplayerdata_minmax/'
+datadir = 'C:/Users/hregmi/PycharmProjects/BaghChaalProject/humanplayerdata_twoplayer/'
 if not os.path.exists(datadir):
     os.makedirs(datadir)
 game_counter = len(os.listdir(datadir)) + 1
 while continue_game == 'yes':
     game.board.reset()
-    data = game.start_play_minmax(goat, bagh)
+    data = game.start_play(goat, bagh)
     data=[x for x in data]
     data=symmetry_board_moves(data)
     state_batch = [x[0] for x in data]
@@ -31,12 +28,5 @@ while continue_game == 'yes':
 
     filename = datadir + 'Game_' + str(game_counter) + '.mat'
     savemat(filename, savedict)
-    # Load data for training
-    datafile = loadmat(filename)
-    state_batch = datafile['state_batch']
-    mcts_probs_batch = datafile['mcts_probs_batch']
-    winner_batch = datafile['winner_batch']
-    winner_batch = np.squeeze(winner_batch)
-    pvnet.train(state_batch,mcts_probs_batch,winner_batch,50)
     continue_game = input('contine game (yes/no):')
     game_counter += 1
