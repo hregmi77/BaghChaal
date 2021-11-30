@@ -2,13 +2,16 @@ from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, BatchNormalization, Add, Activation
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model, save_model
+from tensorflow.keras.utils import plot_model
 from config import ModelConfig
 from utils import mask_illegal
 import numpy as np
+import os
+import tensorflow as tf
 from baghchal.lookup_table import action_list
 action_list=np.array(action_list)
-
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 class PolicyValueNet:
     def __init__(self, model_file=None):
         self.config = ModelConfig()
@@ -111,12 +114,16 @@ class PolicyValueNet:
         losses = ['categorical_crossentropy', 'mean_squared_error']
         self.model.compile(optimizer=opt, loss=losses)
 
-    def save_model(self, model_filename):
+    def save_model_BaghChal(self, model_filename):
         """ save model to file """
-        self.model.save(f"models/{model_filename}")
-    def train(self,board_repr,mtcs_prob,winner,epochs):
+        self.model.save(f"{ROOT_DIR}/models/{model_filename}")
+    def save_model_plot(self, image_path):
+        plot_model(self.model, to_file=f"{ROOT_DIR}/models/{image_path}", show_shapes=True,
+                   dpi=300)
+    def train(self,board_repr,mtcs_prob,winner,epochs, show):
         board_repr = np.array(board_repr)
         mtcs_prob = np.array(mtcs_prob)
         winner = np.array(winner)
-        self.model.fit(board_repr, [mtcs_prob, winner],epochs=epochs)
+        history = self.model.fit(board_repr, [mtcs_prob, winner],epochs=epochs, verbose=show)
+        return history
 

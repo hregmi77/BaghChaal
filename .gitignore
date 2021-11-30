@@ -4,5 +4,11 @@ venv/
 models/
 test/
 humanplayerdata/*
+baghchal/log_mcts_selfplay_50000/*
 humanplayerdata_twoplayer/*
+BaghAsMinMax_GoatAsMinMax/*
+GoatAsMinMax_BaghAsRandom/*
+BaghAsMinMax_GoatAsRandom/*
 humanplayerdata_minmax/*
+selfplay_data/*
+baghchal/log_mcts_selfplay_50000/*

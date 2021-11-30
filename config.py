@@ -15,12 +15,20 @@ class TrainConfig:
         self.temp = 0.8  # the temperature param
         self.n_playout = 10  # num of simulations for each move
         self.c_puct = 0.001
-        self.buffer_size = 10000
-        self.batch_size = 1  # mini-batch size for training
+        self.buffer_size = 100000
+        self.batch_size = 32  # mini-batch size for training
 
         self.play_batch_size = 1 # how many games to play
         self.epochs = 7  # num of train_steps for each update
+        self.pre_epochs = 5
         self.ld=0.8
+        self.elo_baserating = 1500
+        self.elo_k_factor = 32
+        self.num_of_games = 100
+        self.num_of_random_minmax_games = 100
+        self.num_of_minmax_minmax_games = 50
+        self.allow_pretrain = 1
+        self.selfplay_dnn_update_interval = 1
 
         #c_puct=0.0001 ld =0.8
 class TrainGreedyConfig:

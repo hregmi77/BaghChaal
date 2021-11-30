@@ -17,7 +17,7 @@ class Node:
         return len(self.children) > 0
     def get_value(self, cpuct):
         self.U = cpuct * self.prior_prob * \
-                 (self.n_visits ** 0.5 / (1 + self.parent.n_visits))
+                 (self.parent.n_visits ** 0.5 / (1 + self.n_visits))
         return self.Q + self.U
 
     def expand(self, action_prob):
@@ -85,7 +85,7 @@ class MCTS:
      leaf node is -leaf_value as we use max while selecting the node.'''
         node.update(-leaf_value)
 
-    def get_move_probs(self, board, temp=1e1):
+    def get_move_probs(self, board, temp=1e-3):
 
         for _ in range(self.n_playout):
             board_copy = copy.deepcopy(board)
@@ -98,7 +98,7 @@ class MCTS:
         act_probs = act_probs / sum(act_probs)
 
         # [print(act, f"{node.Q:.3f} {node.n_visits}") for act, node in self.root.children.items()]
-        [print(f'act: {act}, Qvalue: {node.Q}, Visits: {node.n_visits}') for act, node in self.root.children.items()]
+        # [print(f'act: {act}, Qvalue: {node.Q}, Visits: {node.n_visits}') for act, node in self.root.children.items()]
         return acts, act_probs
 
     def update_with_move(self, move):

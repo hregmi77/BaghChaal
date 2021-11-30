@@ -1,3 +1,5 @@
+import random
+
 from monte_carlo_tree_search import MCTS
 from baghchal.lookup_table import action_space
 import numpy as np
@@ -14,7 +16,31 @@ class HumanPlayer:
                 return move
             except Exception as e:
                 print(e)
+class RandomPlayer:
+    def __init__(self):
+        pass
 
+    def get_action(self, board):
+        while True:
+            sensible_moves = board.possible_moves()
+            move = random.sample(sensible_moves, 1)[0]
+            try:
+                board.validate(move)
+                return move
+            except Exception as e:
+                print(e)
+class MinMaxPlayer:
+    def __init__(self):
+        pass
+
+    # def get_action(self, board):
+    #     while True:
+    #         move = input("Enter your move: ")
+    #         try:
+    #             board.validate(move)
+    #             return move
+    #         except Exception as e:
+    #             print(e)
 class MCTSPlayer:
 
     def __init__(self, policy_value_fn,
@@ -50,8 +76,12 @@ class MCTSPlayer:
             else:
                 # with the default temp=1e-3, it is almost equivalent
                 # to choosing the move with the highest prob
-                print(probs)
-                move = np.random.choice(acts, p=probs)
+                # print(probs)
+                sugg_move = np.random.choice(acts, p=probs)
+                # print(move)
+                print('Network Suggests the Move: ', sugg_move)
+                move = input('Enter the Move (only numbers):')
+
                 # reset the root node
                 self.mcts.update_with_move(-1)
 

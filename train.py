@@ -1,5 +1,5 @@
-from Game import Game
-from Player import MCTSPlayer,MCTSPlayerGreedy
+from game import Game
+from player import MCTSPlayer,MCTSPlayerGreedy
 from policy_value_net import PolicyValueNet
 from utils import symmetry_board_moves
 from config import TrainConfig,TrainGreedyConfig
