@@ -19,7 +19,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 ############## Stage I - Play Random Player Against Computer #########################
 print('Stage I - Collecting Random and Computer Played Data')
 # First Play Few Games with Goat as MinMax Player and Bagh as Random Player
-datadir = ROOT_DIR + '/GoatAsMinMax_BaghAsRandom/'
+datadir = os.path.join(ROOT_DIR, 'GoatAsMinMax_BaghAsRandom')
 if not os.path.exists(datadir):
     os.makedirs(datadir)
 NumOfGames = training_config.num_of_random_minmax_games
@@ -42,15 +42,15 @@ for gamenumber in range(NumOfGames):
     mcts_probs_batch = np.array(mcts_probs_batch)
     winner_batch = np.array(winner_batch)
     # Keeping the game data incase we need for future
-    savedict = {'Game Duration': game_time, 'Game Numer': gamenumber + 1, 'state_batch': state_batch,
+    savedict = {'Game Duration': game_time, 'Game Number': gamenumber + 1, 'state_batch': state_batch,
                 'mcts_probs_batch': mcts_probs_batch,
                 'winner_batch': winner_batch}
     time_string = str(int(datetime.now().timestamp()))
-    filename = datadir + 'Game_' + str(gamenumber+1) + '_' + time_string + '.mat'
+    filename = os.path.join(datadir, 'Game_' + str(gamenumber+1) + '_' + time_string + '.mat')
     savemat(filename, savedict)
     print('Winner:', w)
 # Next Play Few Games with Goat as Random Player and Bagh as MinMax Player
-datadir = ROOT_DIR + '/BaghAsMinMax_GoatAsRandom/'
+datadir = os.path.join(ROOT_DIR, 'BaghAsMinMax_GoatAsRandom')
 if not os.path.exists(datadir):
     os.makedirs(datadir)
 for gamenumber in range(NumOfGames):
@@ -76,12 +76,12 @@ for gamenumber in range(NumOfGames):
                 'mcts_probs_batch': mcts_probs_batch,
                 'winner_batch': winner_batch}
     time_string = str(int(datetime.now().timestamp()))
-    filename = datadir + 'Game_' + str(gamenumber+1) + '_' + time_string + '.mat'
+    filename = os.path.join(datadir, 'Game_' + str(gamenumber+1) + '_' + time_string + '.mat')
     savemat(filename, savedict)
     print('Winner:', w)
 ############ Phase II - Computer Aganist Computer ###############################
 print('Phase II - Playing Computer vs Computer')
-datadir = ROOT_DIR + '/BaghAsMinMax_GoatAsMinMax/'
+datadir = os.path.join(ROOT_DIR , 'BaghAsMinMax_GoatAsMinMax')
 if not os.path.exists(datadir):
     os.makedirs(datadir)
 NumOfGames = training_config.num_of_minmax_minmax_games
@@ -105,10 +105,10 @@ for depthvalue in range(4,7):
         mcts_probs_batch = np.array(mcts_probs_batch)
         winner_batch = np.array(winner_batch)
         # Keeping the game data incase we need for future
-        savedict = {'Game Duration': game_time, 'Game Numer': gamenumber + 1, 'state_batch': state_batch,
+        savedict = {'Game Duration': game_time, 'Game Number': gamenumber + 1, 'state_batch': state_batch,
                     'mcts_probs_batch': mcts_probs_batch,
                     'winner_batch': winner_batch}
         time_string = str(int(datetime.now().timestamp()))
-        filename = datadir + 'Game_' + str(gamenumber+1) + '_' + time_string + '.mat'
+        filename = os.path.join(datadir, 'Game_' + str(gamenumber+1) + '_' + time_string + '.mat')
         savemat(filename, savedict)
         print('Winner:', w)
