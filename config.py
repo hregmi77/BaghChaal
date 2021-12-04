@@ -13,14 +13,14 @@ class TrainConfig:
         self.learn_rate = 2e-3
         self.lr_multiplier = 1.0  # adaptively adjust the learning rate based on KL
         self.temp = 0.8  # the temperature param
-        self.n_playout = 10  # num of simulations for each move
+        self.n_playout = 50  # num of simulations for each move
         self.c_puct = 0.001
-        self.buffer_size = 100000
+        self.buffer_size = 20000
         self.batch_size = 32  # mini-batch size for training
 
         self.play_batch_size = 1 # how many games to play
         self.epochs = 7  # num of train_steps for each update
-        self.pre_epochs = 5
+        self.pre_epochs = 40
         self.ld=0.8
         self.elo_baserating = 1500
         self.elo_k_factor = 32
