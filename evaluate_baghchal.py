@@ -22,7 +22,9 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 game = Game()
 game_config = TrainConfig()
 # Load trained Policy-Value Network
-model_path = ROOT_DIR + '/models/model_selfplay.h5'
+self_play_model_directory = os.path.join(ROOT_DIR, 'models', 'model', 'self_play_model',
+                                                     f'model_selfplay_{game_config.epochs}_epoch_{game_config.n_playout}_simulations_{99 + 1}_gamenumber')
+model_path = os.path.join(self_play_model_directory, 'model_selfplay_1638576146.h5')
 if not os.path.exists(model_path):
     print('No trained Model is Found')
     exit(0)
