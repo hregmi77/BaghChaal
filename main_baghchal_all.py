@@ -15,6 +15,7 @@ import os
 from numpy import random
 from datetime import datetime
 from config import TrainConfig
+import pandas as pd
 
 # Define the config for the BaghChal
 training_config = TrainConfig()
@@ -51,7 +52,8 @@ https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-
     return Player1_Rating_Updated, Player2_Rating_Updated
 ################# To log the data in tensorboard #########################
 time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-log_dir = os.path.join('log_mcts_selfplay_50000/train', time_string)
+log_dir = os.path.join('log_mcts_selfplay_50000', 'train', time_string)
+
 if not os.path.exists(log_dir): os.makedirs(log_dir)
 writer = SummaryWriter(log_dir=os.path.join( log_dir, 'tensorboard'))
 ############################################################################
@@ -59,37 +61,41 @@ writer = SummaryWriter(log_dir=os.path.join( log_dir, 'tensorboard'))
 replaybuffer = ReplayBuffer(training_config.buffer_size)
 ############## Phase II - Load Previously Collected Data to Buffer #########################
 print('------ Load Collected Data to the Buffer  -----')
-GameFolders = ["/GoatAsMinMax_BaghAsRandom", "/BaghAsMinMax_GoatAsRandom", "/BaghAsMinMax_GoatAsMinMax",
-               "/humanplayerdata"]
+GameFolders = ["GoatAsMinMax_BaghAsRandom", "BaghAsMinMax_GoatAsRandom", "BaghAsMinMax_GoatAsMinMax",
+               "humanplayerdata"]
 states_batchs = []
 mcts_probs_batches = []
 winner_batches = []
 counter = 1
 for gamefolder in GameFolders:
-    eachfolder = ROOT_DIR + gamefolder + '/'
-    for gamefile in os.listdir(eachfolder):
-        filename = eachfolder + gamefile
-        datafile = loadmat(filename)
-        state_batch = datafile['state_batch']
-        mcts_probs_batch = datafile['mcts_probs_batch']
-        winner_batch = datafile['winner_batch']
-        winner_batch = np.squeeze(winner_batch)
-        if counter == 1:
-            counter = 2
-            states_batchs = state_batch
-            mcts_probs_batches = mcts_probs_batch
-            winner_batches = winner_batch
-        states_batchs = np.concatenate((states_batchs, state_batch), axis=0)
-        mcts_probs_batches = np.concatenate((mcts_probs_batches, mcts_probs_batch), axis=0)
-        winner_batches = np.concatenate((winner_batches, winner_batch), axis=0)
+    eachfolder = os.path.join(ROOT_DIR, gamefolder)
+    if os.path.isdir(eachfolder):
+        for gamefile in os.listdir(eachfolder):
+            filename = os.path.join(eachfolder, gamefile)
+            datafile = loadmat(filename)
+            state_batch = datafile['state_batch']
+            mcts_probs_batch = datafile['mcts_probs_batch']
+            winner_batch = datafile['winner_batch']
+            winner_batch = np.squeeze(winner_batch)
+            if counter == 1:
+                counter = 2
+                states_batchs = state_batch
+                mcts_probs_batches = mcts_probs_batch
+                winner_batches = winner_batch
+            states_batchs = np.concatenate((states_batchs, state_batch), axis=0)
+            mcts_probs_batches = np.concatenate((mcts_probs_batches, mcts_probs_batch), axis=0)
+            winner_batches = np.concatenate((winner_batches, winner_batch), axis=0)
 # Load the buffer with  Collected Data
+
 for i in range(states_batchs.shape[0]):
     replaybuffer.add_experience(states_batchs[i], mcts_probs_batches[i], winner_batches[i])
 ################### Phase III - Train the DNN model with collected data #######################
+pre_train_time_string = time_string
 if training_config.allow_pretrain:
-    modeldir = ROOT_DIR + '/models/'
-    if not os.path.exists(modeldir):
-        os.makedirs(modeldir)
+    pre_train_time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    # modeldir = os.path.join(ROOT_DIR, 'models')
+    # if not os.path.exists(modeldir):
+    #     os.makedirs(modeldir)
     print('Training the Policy-Value Network with Human, Random, and Computer Player Experiences')
     pvnet = PolicyValueNet()
     # Retrieve data from buffer to train
@@ -97,14 +103,29 @@ if training_config.allow_pretrain:
     if replaybuffer.size() > training_config.batch_size:
         states_batchs, mcts_probs_batches, winner_batches = replaybuffer.samp_data(datasize_to_train)
         hist = pvnet.train(states_batchs, mcts_probs_batches, winner_batches, training_config.pre_epochs, show=True)
-        pvnet.save_model_BaghChal('model_selfplay.h5')
+        pretrain_model_directory = os.path.join(ROOT_DIR, 'models', 'model', 'pretrain_model',
+                                                f'pretrain_model_selfplay_{training_config.pre_epochs}_epoch_{training_config.n_playout}_simulations')
+        pvnet.save_model_BaghChal(pretrain_model_directory,
+                                  f'pretrain_model_selfplay_{time_string}.h5')
+        df = pd.DataFrame(hist.history)
+        pvnet.save_csv(pretrain_model_directory, f'pretrain_model_selfplay_{time_string}.csv', df)
+        # pd.DataFrame.to_csv(df, f'pretrain_model_selfplay_{training_config.pre_epochs}epoch_{training_config.n_playout}simulations_history.csv')
+        # pvnet.save_model_plot(pretrain_model_directory, f'pretrain_model_selfplay_{training_config.pre_epochs}'
+        #                                                 f'epoch_{training_config.n_playout}simulations_{time_string}.png')
+
 else:
-    pvnet = PolicyValueNet(ROOT_DIR + '/models/model_selfplay.h5')
+    model_directory = os.path.join(ROOT_DIR, 'models', 'model', 'pretrain_model',
+                                            f'pretrain_model_selfplay_{training_config.pre_epochs}'
+                                            f'_epoch_{training_config.n_playout}_simulations')
+    pvnet = PolicyValueNet(os.path.join(model_directory, 'pretrain_model_selfplay.h5'))
     print('Previously Trained Model is Loaded')
 
-datadir = ROOT_DIR + '/selfplay_data/'
+datadir = os.path.join(ROOT_DIR, 'selfplay_data')
 if not os.path.exists(datadir):
     os.makedirs(datadir)
+
+##################################################################################################
+actual_winner = []
 NumOfGames = training_config.num_of_games
 for gamenumber in range(NumOfGames):
     game = Game()
@@ -115,6 +136,7 @@ for gamenumber in range(NumOfGames):
     game.board.reset()
     start_time = int(datetime.now().timestamp())
     [w, data] = game.start_self_play(player, show=False)
+    actual_winner.append(w)
     end_time = int(datetime.now().timestamp())
     game_time = end_time - start_time
     print('Winner:', w, '---- Game Time (Secs):', game_time)
@@ -129,10 +151,10 @@ for gamenumber in range(NumOfGames):
     for i in range(state_batch.shape[0]):
         replaybuffer.add_experience(state_batch[i], mcts_probs_batch[i], winner_batch[i])
     # Keeping the game data incase we need for future
-    savedict = {'Game Duration':game_time, 'Game Numer': gamenumber+1, 'state_batch': state_batch, 'mcts_probs_batch': mcts_probs_batch,
+    savedict = {'Game Duration':game_time, 'Game Number': gamenumber+1, 'state_batch': state_batch, 'mcts_probs_batch': mcts_probs_batch,
                 'winner_batch': winner_batch}
     time_string = str(int(datetime.now().timestamp()))
-    filename = datadir + 'Game_' + str(gamenumber) + '_' +  time_string + '.mat'
+    filename = os.path.join(datadir, 'Game_' + str(gamenumber) + '_' +  time_string + '.mat')
     savemat(filename, savedict)
     # Updating model only after certain interval
     if (gamenumber + 1) % training_config.selfplay_dnn_update_interval == 0:
@@ -142,4 +164,14 @@ for gamenumber in range(NumOfGames):
             states_batchs, mcts_probs_batches, winner_batches = replaybuffer.samp_data(datasize_to_train)
             print('DNN is updating with recent game observations...........')
             hist = pvnet.train(states_batchs, mcts_probs_batches, winner_batches, training_config.epochs, show=False)
-            pvnet.save_model_BaghChal('model_selfplay.h5')
+            self_play_model_directory = os.path.join(ROOT_DIR, 'models', 'model', 'self_play_model',
+                                                     f'model_selfplay_{training_config.epochs}_epoch_{training_config.n_playout}_simulations_{gamenumber + 1}_gamenumber')
+
+            pvnet.save_model_BaghChal(self_play_model_directory,
+                                      f'model_selfplay_{time_string}.h5')
+
+            df = pd.DataFrame(hist.history)
+            pvnet.save_csv(self_play_model_directory,
+                           f'model_selfplay_{time_string}.csv', df)
+            # pvnet.save_model_plot(self_play_model_directory, f'model_selfplay_{training_config.epochs}'
+            #                f'epoch_{training_config.n_playout}simulations_{gamenumber+1}gamenumber.png')
