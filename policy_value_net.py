@@ -5,6 +5,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import load_model, save_model
 from tensorflow.keras.utils import plot_model
 from config import ModelConfig
+import pandas as pd
 from utils import mask_illegal
 import numpy as np
 import os
@@ -114,12 +115,26 @@ class PolicyValueNet:
         losses = ['categorical_crossentropy', 'mean_squared_error']
         self.model.compile(optimizer=opt, loss=losses)
 
-    def save_model_BaghChal(self, model_filename):
+    def save_model_BaghChal(self, model_directory, model_filename):
         """ save model to file """
-        self.model.save(f"{ROOT_DIR}/models/{model_filename}")
-    def save_model_plot(self, image_path):
-        plot_model(self.model, to_file=f"{ROOT_DIR}/models/{image_path}", show_shapes=True,
+        if not os.path.isdir(model_directory):
+            os.makedirs(model_directory)
+        self.model.save(os.path.join(model_directory, model_filename))
+
+    def save_model_plot(self, image_directory, image_path):
+        """ save model image to a file"""
+        if not os.path.isdir(image_directory):
+            os.makedirs(image_directory)
+        plot_model(self.model, to_file=os.path.join(image_directory, image_path), show_shapes=True,
                    dpi=300)
+
+    def save_csv(self, csv_directory, csv_path, input_dataframe):
+        """ save model to file """
+        if not os.path.isdir(csv_directory):
+            os.makedirs(csv_directory)
+        pd.DataFrame.to_csv(input_dataframe, os.path.join(csv_directory, csv_path))
+
+
     def train(self,board_repr,mtcs_prob,winner,epochs, show):
         board_repr = np.array(board_repr)
         mtcs_prob = np.array(mtcs_prob)
