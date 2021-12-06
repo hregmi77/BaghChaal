@@ -36,7 +36,6 @@ def get_latest_game_number(self_play_model_directory):
     except Exception as exp:
         print(f"Exception {exp} occured")
 
-
 def get_latest_model_file(self_play_model_directory):
     try:
         if os.path.exists(self_play_model_directory):
@@ -55,34 +54,34 @@ def get_latest_model_file(self_play_model_directory):
         print("Exception occured ", exp)
         raise exp
 
-def evaluate_game(pvnet_value_fn, model_path, player='Minmax'):
+def play_game(pvnet_value_fn, model_path, player='minmax'):
     print(f"Playing with {player} Player")
-    if player == 'MCTS':
+    if player == 'mcts':
         pvnet_untrained = PolicyValueNet(model_path)
         pvnet_untrained.loss_train_op()
         pvnet_untrained_value_fn = pvnet_untrained.policy_value_fn
     while True:
-        player_list = ["G", "B"]
-        choice = random.choice(player_list)
+        choice = input('Play as Goat (G) or Tiger (B) (Typer G or B):')
+        choice = choice.upper()
         if choice == 'B':
-            if player=='MCTS':
+            if player=='mcts':
                 goat = MCTSPlayer(pvnet_untrained_value_fn, n_playout=game_config.n_playout, is_selfplay=0)
-            elif player=='Minmax':
+            elif player=='minmax':
                 goat = MinMaxPlayer()
             else:
                 goat = RandomPlayer()
 
-            bagh = MCTSPlayer(pvnet_value_fn, n_playout=game_config.n_playout, is_selfplay=0)
+            bagh = MCTSPlayer(pvnet_value_fn, n_playout=game_config.n_playout, is_human_play=1, is_selfplay=0)
             break
         elif choice == 'G':
-            if player=='MCTS':
+            if player=='mcts':
                 bagh = MCTSPlayer(pvnet_untrained_value_fn, n_playout=game_config.n_playout, is_selfplay=0)
-            elif player=='Minmax':
+            elif player=='minmax':
                 bagh = MinMaxPlayer()
             else:
                 bagh = RandomPlayer()
 
-            goat = MCTSPlayer(pvnet_value_fn, n_playout=game_config.n_playout, is_selfplay=0)
+            goat = MCTSPlayer(pvnet_value_fn, n_playout=game_config.n_playout, is_human_play=1, is_selfplay=0)
             break
         else:
             print('Invalid Player! Select either G or B')
@@ -94,13 +93,12 @@ def evaluate_game(pvnet_value_fn, model_path, player='Minmax'):
     game_time = end_time - start_time
     print('Game Over!', 'Winner: ', w, 'Game Time:', game_time)
 
-def evaluate_baghchal_game(player='Minmax'):
+def play_baghchal():
     self_play_model_directory = os.path.join(ROOT_DIR, 'models', 'model', 'self_play_model')
     gamenumber = get_latest_game_number(self_play_model_directory)
     self_play_model_directory = os.path.join(ROOT_DIR, 'models', 'model', 'self_play_model',
-                                             f'model_selfplay_{game_config.epochs}_epoch_{game_config.n_playout}_simulations_{gamenumber}_gamenumber')
+                                                         f'model_selfplay_{game_config.epochs}_epoch_{game_config.n_playout}_simulations_{gamenumber}_gamenumber')
     latest_model_file = get_latest_model_file(self_play_model_directory)
-
     model_path = os.path.join(self_play_model_directory, latest_model_file)
     if not os.path.exists(model_path):
         print('No trained Model is Found')
@@ -112,6 +110,16 @@ def evaluate_baghchal_game(player='Minmax'):
     pvnet.loss_train_op()
     pvnet_value_fn = pvnet.policy_value_fn
 
-    evaluate_game(pvnet_value_fn, model_path, player=player)
-    # evaluate_game(player='MCTS')
-    # evaluate_game(player='RandomPlayer')
+    player_list = ['minmax', 'random', 'mcts']
+    select_player = True
+
+    while select_player:
+        player = input('Enter the Player with whom you want to play,'
+                       'Minmax for Minmax player, Random for Random Player, MCTS for MCTS player:')
+        player = player.lower()
+
+        if player in player_list:
+            select_player = False
+            play_game(pvnet_value_fn, model_path, player=player)
+        else:
+            print('Invalid Player! Select either Minmax , MCTS or Random')

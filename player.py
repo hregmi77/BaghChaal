@@ -44,8 +44,9 @@ class MinMaxPlayer:
 class MCTSPlayer:
 
     def __init__(self, policy_value_fn,
-                 cpuct=5, n_playout=2000, is_selfplay=0):
+                 cpuct=5, n_playout=2000, is_selfplay=0, is_human_play=0):
         self.mcts = MCTS(policy_value_fn, cpuct, n_playout)
+        self.is_human_play = is_human_play
         self.is_selfplay = is_selfplay
 
     def reset_player(self):
@@ -79,8 +80,13 @@ class MCTSPlayer:
                 # print(probs)
                 sugg_move = np.random.choice(acts, p=probs)
                 # print(move)
-                print('Network Suggests the Move: ', sugg_move)
-                move = input('Enter the Move (only numbers):')
+
+                if self.is_human_play:
+                    print('Network Suggests the Move: ', sugg_move)
+                    move = input('Enter the Move (only numbers):')
+
+                else:
+                    move = sugg_move
 
                 # reset the root node
                 self.mcts.update_with_move(-1)
