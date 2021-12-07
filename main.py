@@ -47,7 +47,7 @@ def main():
             "Generate Data",
             "Train both pretrain model and self play model",
             "Load pretrained model and train self play with pretrained model",
-            "Generate Data, train pretrain model",
+            "Generate Data, train pretrain model and self play model",
             "Train with self play model only",
             "Play Baghchal",
             "Evaluate model",
