@@ -6,7 +6,7 @@ is the core file of the project that collects data, pretrains model and run self
 Then the other file is evlauate_baghchal.py with which we can evaluate the model that has been trained.
 With play_baghchal_game.py we can play trained mcts with untrained minmax, untrained random player and untrained mcts.
 
-The directory structure after CollectObservations.py will be
+The directory structure afer CollectObservations.py will be
 
         ---------->BaghChaalProject
                  ------------>BaghAsMinMax_GoatAsMinMax
