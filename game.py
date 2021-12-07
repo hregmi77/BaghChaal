@@ -43,6 +43,15 @@ class Game:
                     a[action_space[move[-4:]]] = 1
                 mcts_probs.append(a)
                 self.board.safe_move(move)
+            elif player_to_move.__class__==RandomPlayer:
+                move = player_to_move.get_action(self.board)
+                a=np.zeros(217)
+                if len(move)==3:
+                    a[action_space[move[1:]]]=1
+                else:
+                    a[action_space[move[-4:]]]=1
+                mcts_probs.append(a)
+                self.board.safe_move(move)
             if show:
                 self.board.lightweight_show_board()
                 # self.board.render()

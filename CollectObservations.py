@@ -73,7 +73,7 @@ def generate_random_play_data():
         mcts_probs_batch = np.array(mcts_probs_batch)
         winner_batch = np.array(winner_batch)
         # Keeping the game data incase we need for future
-        savedict = {'Game Duration': game_time, 'Game Numer': gamenumber + 1, 'state_batch': state_batch,
+        savedict = {'Game Duration': game_time, 'Game Number': gamenumber + 1, 'state_batch': state_batch,
                     'mcts_probs_batch': mcts_probs_batch,
                     'winner_batch': winner_batch}
         time_string = str(int(datetime.now().timestamp()))

@@ -135,7 +135,10 @@ def get_pretrain_neural_network(replaybuffer, load_pretrain_model=False):
                         temp_date_time.append(file.split('.')[0].split('_')[-1])
                 temp_date_time = sorted(temp_date_time, key=lambda row: datetime.strptime(row, "%Y-%m-%d-%H-%M-%S"),
                                         reverse=True)
-                latest_model_file = 'pretrain_model_selfplay_' + temp_date_time[0] + '.h5'
+                integer_map = map(int, temp_date_time)
+                integer_list = list(integer_map)
+                sorted_list = sorted(integer_list, reverse=True)
+                latest_model_file = 'pretrain_model_selfplay_' + str(sorted_list[0]) + '.h5'
             else:
                 print(f"No pretrain model exits for current configuration, pre_epochs {training_config.pre_epochs}, epoch "
                       f"{training_config.epochs}, simulations {training_config.n_playout}")

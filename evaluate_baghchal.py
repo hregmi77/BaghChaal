@@ -14,12 +14,13 @@ import numpy as np
 import os
 from numpy import random
 from datetime import datetime
+import pandas as pd
 from config import TrainConfig
 
 # Retrive Root Directory
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Define Game and Players
-game = Game()
+game = Game(depth=4)
 game_config = TrainConfig()
 # Load trained Policy-Value Network
 
@@ -32,7 +33,10 @@ def get_latest_game_number(self_play_model_directory):
             for dirs in dir_list:
                 if f'model_selfplay_{game_config.epochs}_epoch_{game_config.n_playout}_simulations' in dirs:
                     temp_game_number.append(dirs.split('_')[-2])
-            return sorted(temp_game_number)[-1]
+            integer_map = map(int, temp_game_number)
+            integer_list = list(integer_map)
+            sorted_list = sorted(integer_list)
+            return str(sorted_list[-1])
     except Exception as exp:
         print(f"Exception {exp} occured")
 
@@ -45,8 +49,10 @@ def get_latest_model_file(self_play_model_directory):
             for file in files:
                 if file.endswith(".h5"):
                     temp_date_time.append(file.split('.')[0].split('_')[-1])
-            temp_date_time = sorted(temp_date_time, reverse=True)
-            latest_model_file = 'model_selfplay_' + temp_date_time[0] + '.h5'
+            integer_map = map(int, temp_date_time)
+            integer_list = list(integer_map)
+            sorted_list = sorted(integer_list, reverse=True)
+            latest_model_file = 'model_selfplay_' + str(sorted_list[0]) + '.h5'
             return latest_model_file
         else:
             print(f"No pretrain model exits for current configuration, pre_epochs {game_config.pre_epochs}, epoch "
@@ -58,7 +64,7 @@ def get_latest_model_file(self_play_model_directory):
 def evaluate_game(pvnet_value_fn, model_path, player='Minmax'):
     print(f"Playing with {player} Player")
     if player == 'MCTS':
-        pvnet_untrained = PolicyValueNet(model_path)
+        pvnet_untrained = PolicyValueNet()
         pvnet_untrained.loss_train_op()
         pvnet_untrained_value_fn = pvnet_untrained.policy_value_fn
     while True:
@@ -93,6 +99,7 @@ def evaluate_game(pvnet_value_fn, model_path, player='Minmax'):
     end_time = int(datetime.now().timestamp())
     game_time = end_time - start_time
     print('Game Over!', 'Winner: ', w, 'Game Time:', game_time)
+    return choice, w, game_time
 
 def evaluate_baghchal_game(player='Minmax'):
     self_play_model_directory = os.path.join(ROOT_DIR, 'models', 'model', 'self_play_model')
@@ -100,7 +107,6 @@ def evaluate_baghchal_game(player='Minmax'):
     self_play_model_directory = os.path.join(ROOT_DIR, 'models', 'model', 'self_play_model',
                                              f'model_selfplay_{game_config.epochs}_epoch_{game_config.n_playout}_simulations_{gamenumber}_gamenumber')
     latest_model_file = get_latest_model_file(self_play_model_directory)
-
     model_path = os.path.join(self_play_model_directory, latest_model_file)
     if not os.path.exists(model_path):
         print('No trained Model is Found')
@@ -112,6 +118,42 @@ def evaluate_baghchal_game(player='Minmax'):
     pvnet.loss_train_op()
     pvnet_value_fn = pvnet.policy_value_fn
 
-    evaluate_game(pvnet_value_fn, model_path, player=player)
+    datadir = os.path.join(ROOT_DIR, 'Evaluate_Data')
+
+    data_mode = 'self_play_only'
+
+    if not os.path.exists(datadir):
+        os.makedirs(datadir)
+
+    temp_data = []
+
+    for game in range(100):
+        player1, winner_player, game_time = evaluate_game(pvnet_value_fn, model_path, player='Minmax')
+        temp_data.append(['Minmax', player1, winner_player, game_time])
+
+    input_minmax_dataframe = pd.DataFrame(temp_data, columns=('Algorithm', 'Player_Chosen', 'Winner_Player', 'Game_Time'))
+    pd.DataFrame.to_csv(input_minmax_dataframe, os.path.join(datadir, f'play_mcts_with_minmax_{data_mode}.csv'))
+
+
+    temp_data = []
+    for game in range(100):
+        player1, winner_player, game_time = evaluate_game(pvnet_value_fn, model_path, player='MCTS')
+        temp_data.append(['MCTS', player1, winner_player, game_time])
+
+    input_dataframe = pd.DataFrame(temp_data, columns=('Algorithm', 'Player_Chosen', 'Winner_Player', 'Game_Time'))
+    pd.DataFrame.to_csv(input_dataframe, os.path.join(datadir, f'play_mcts_with_untrained_mcts_{data_mode}.csv'))
+
+
+    temp_data = []
+    for game in range(100):
+        player1, winner_player, game_time = evaluate_game(pvnet_value_fn, model_path, player='Random')
+        temp_data.append(['Random', player1, winner_player, game_time])
+
+    input_randomplayer_dataframe = pd.DataFrame(temp_data, columns=('Algorithm', 'Player_Chosen', 'Winner_Player', 'Game_Time'))
+    pd.DataFrame.to_csv(input_randomplayer_dataframe, os.path.join(datadir, f'play_mcts_randomplayer_{data_mode}.csv'))
+
+    # evaluate_game(pvnet_value_fn, model_path, player='Random')
     # evaluate_game(player='MCTS')
     # evaluate_game(player='RandomPlayer')
+
+evaluate_baghchal_game()

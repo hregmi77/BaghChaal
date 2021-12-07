@@ -32,7 +32,10 @@ def get_latest_game_number(self_play_model_directory):
             for dirs in dir_list:
                 if f'model_selfplay_{game_config.epochs}_epoch_{game_config.n_playout}_simulations' in dirs:
                     temp_game_number.append(dirs.split('_')[-2])
-            return sorted(temp_game_number)[-1]
+            integer_map = map(int, temp_game_number)
+            integer_list = list(integer_map)
+            sorted_list = sorted(integer_list)
+            return str(sorted_list[-1])
     except Exception as exp:
         print(f"Exception {exp} occured")
 
@@ -44,8 +47,10 @@ def get_latest_model_file(self_play_model_directory):
             for file in files:
                 if file.endswith(".h5"):
                     temp_date_time.append(file.split('.')[0].split('_')[-1])
-            temp_date_time = sorted(temp_date_time, reverse=True)
-            latest_model_file = 'model_selfplay_' + temp_date_time[0] + '.h5'
+            integer_map = map(int, temp_date_time)
+            integer_list = list(integer_map)
+            sorted_list = sorted(integer_list, reverse=True)
+            latest_model_file = 'model_selfplay_' + str(sorted_list[0]) + '.h5'
             return latest_model_file
         else:
             print(f"No pretrain model exits for current configuration, pre_epochs {game_config.pre_epochs}, epoch "
@@ -57,7 +62,7 @@ def get_latest_model_file(self_play_model_directory):
 def play_game(pvnet_value_fn, model_path, player='minmax'):
     print(f"Playing with {player} Player")
     if player == 'mcts':
-        pvnet_untrained = PolicyValueNet(model_path)
+        pvnet_untrained = PolicyValueNet()
         pvnet_untrained.loss_train_op()
         pvnet_untrained_value_fn = pvnet_untrained.policy_value_fn
     while True:
