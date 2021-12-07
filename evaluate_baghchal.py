@@ -2,7 +2,6 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import warnings
 warnings.filterwarnings('ignore')
-import csv
 import config
 from game import Game
 from scipy.io import savemat, loadmat
