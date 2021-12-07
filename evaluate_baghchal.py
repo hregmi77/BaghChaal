@@ -146,5 +146,3 @@ def evaluate_baghchal_game(player='Minmax'):
     # evaluate_game(pvnet_value_fn, model_path, player='Random')
     # evaluate_game(player='MCTS')
     # evaluate_game(player='RandomPlayer')
-
-evaluate_baghchal_game()
