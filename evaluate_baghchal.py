@@ -120,7 +120,7 @@ def evaluate_baghchal_game(player='Minmax'):
 
     datadir = os.path.join(ROOT_DIR, 'Evaluate_Data')
 
-    data_mode = 'self_play_only'
+    data_mode = 'self_play_with_pretrain'
 
     if not os.path.exists(datadir):
         os.makedirs(datadir)
@@ -146,5 +146,3 @@ def evaluate_baghchal_game(player='Minmax'):
     # evaluate_game(pvnet_value_fn, model_path, player='Random')
     # evaluate_game(player='MCTS')
     # evaluate_game(player='RandomPlayer')
-
-evaluate_baghchal_game()
