@@ -120,7 +120,7 @@ def evaluate_baghchal_game(player='Minmax'):
 
     datadir = os.path.join(ROOT_DIR, 'Evaluate_Data')
 
-    data_mode = 'self_play_only'
+    data_mode = 'self_play_with_pretrain'
 
     if not os.path.exists(datadir):
         os.makedirs(datadir)
@@ -128,50 +128,20 @@ def evaluate_baghchal_game(player='Minmax'):
     temp_data = []
 
     for game in range(25):
-        print("==================================================")
-        print("==================================================")
-        print("==================================================")
-        print("Number of game ", game)
-        print("==================================================")
-        print("==================================================")
-        print("==================================================")
         player1, winner_player, game_time = evaluate_game(pvnet_value_fn, model_path, player='Minmax')
         # temp_data.append(['Minmax', player1, winner_player, game_time])
 
-        input_minmax_dataframe = pd.DataFrame(['Minmax', player1, winner_player, game_time])
+        input_minmax_dataframe = pd.DataFrame([['Minmax'], [player1], [winner_player], [game_time]])
         pd.DataFrame.to_csv(input_minmax_dataframe, os.path.join(datadir, f'play_mcts_with_minmax_{data_mode}.csv'), mode='a')
 
 
     temp_data = []
     for game in range(25):
-        print("==================================================")
-        print("==================================================")
-        print("==================================================")
-        print("Number of game ", game)
-        print("==================================================")
-        print("==================================================")
-        print("==================================================")
         player1, winner_player, game_time = evaluate_game(pvnet_value_fn, model_path, player='MCTS')
         # temp_data.append(['MCTS', player1, winner_player, game_time])
 
-        input_dataframe = pd.DataFrame(['MCTS', player1, winner_player, game_time])
+        input_dataframe = pd.DataFrame([['MCTS'], [player1], [winner_player], [game_time]])
         pd.DataFrame.to_csv(input_dataframe, os.path.join(datadir, f'play_mcts_with_untrained_mcts_{data_mode}.csv'), mode='a')
-
-
-    temp_data = []
-    for game in range(25):
-        print("==================================================")
-        print("==================================================")
-        print("==================================================")
-        print("Number of game ", game)
-        print("==================================================")
-        print("==================================================")
-        print("==================================================")
-        player1, winner_player, game_time = evaluate_game(pvnet_value_fn, model_path, player='Random')
-        # temp_data.append(['Random', player1, winner_player, game_time])
-
-        input_randomplayer_dataframe = pd.DataFrame(['Random', player1, winner_player, game_time])
-        pd.DataFrame.to_csv(input_randomplayer_dataframe, os.path.join(datadir, f'play_mcts_randomplayer_{data_mode}.csv'), mode='a')
 
     # evaluate_game(pvnet_value_fn, model_path, player='Random')
     # evaluate_game(player='MCTS')
