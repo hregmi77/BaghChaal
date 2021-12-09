@@ -120,7 +120,7 @@ def evaluate_baghchal_game(player='Minmax'):
 
     datadir = os.path.join(ROOT_DIR, 'Evaluate_Data')
 
-    data_mode = 'self_play_with_pretrain'
+    data_mode = 'self_play_only'
 
     if not os.path.exists(datadir):
         os.makedirs(datadir)
